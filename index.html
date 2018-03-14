@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Flickr Fotos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="css.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <!-- div de class container permet comportament responsive -->
+    <div class="container">
+        <h1> Fotos Flickr </h1>
+        <!-- Aqui iniciam el formulari -->
+        <form id="formulario">
+
+            <div class="form-group">
+                <label for="etiquetas">Etiquetas:</label>
+                <input type="text" class="form-control" id="etiquetas" placeholder="Introdueix les etiquetes separades per espais(p. ej. 'sucre groc illa ...')">
+            </div>
+
+            <div class="form-group">
+                <label for="incluir">Incluir:</label>
+                <select class="form-control" id="incluir">
+                    <option value="all">Totes</option>
+                    <option value="any">Algunes</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-default" id="submit">CERCAR</button>
+        </form>
+        <h1>Resultados</h1>
+    </h1>
+    <!-- La taula es definira d'aquesta manera. -->
+    <table id="tabla" class="table">
+        <thead>
+            <tr>
+                <th>Titol</th>
+                <th>Enllaç</th>
+                <th>imatge</th>
+                <th>Data de publicació</th>
+                <th>Autor</th>
+                <th>Etiquetes</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+        </tbody>
+    </table>
+</div>
+<!-- Aico es l'scrip d'AJAX que fa la petició a Flickr, i la tranforma a JSON.-->
+<script>
+    $(document).ready(function(){
+        
+        $("#formulario").submit(function(evento){
+            //.remove() Permet borrar la recerca anterior.
+            $(".resultado").remove();
+            var flickrAPI = "http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?";
+            var etiqueta = $("#etiquetas").val();
+            var incluir = $("#incluir").val();
+            //.replace serveix per substituir els epais per comes
+            var etiquetas = etiqueta.replace(" " ,",");
+            // tags y tagmode recullen la informació del formulari.
+            $.getJSON( 
+            flickrAPI, {
+                tags:etiquetas,
+                tagmode:incluir,
+                format:"json"
+            },
+            function(data) {
+                //Bucle Aquest bucle recor la informació i posa una fila per cada informació.
+                $.each( data.items, function(i, item) {
+                    var nuevafila =$("<tr class='resultado'><td>"+item.title+"</td><td>"+item.link
+                        +"</td><td><img src='"+item.media.m+"'></td><td>"+item.published
+                            +"</td><td>"+item.author+"</td><td>"+item.tags+"</td></tr>");
+                            nuevafila.appendTo("#cuerpoTabla");
+                        });
+                    }
+                    );
+                    return false;
+                });
+                
+            });
+        </script>
+    </body>
+    </html>
